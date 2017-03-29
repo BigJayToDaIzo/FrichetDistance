@@ -9,25 +9,19 @@
 using namespace std;
 
 //Structs
-struct trajectory {
-	double xAxis, yAxis, zAxis;
+struct pointInTraj {
+	double xAxis, yAxis;
 	int kAxis, tid;
 
-	trajectory(double x, double y, double z, int k, int t) { //ctor
-		xAxis = x; yAxis = y; zAxis = z;
+	pointInTraj(double x, double y, int k, int t) { //ctor
+		xAxis = x; yAxis = y;
 		kAxis = k; tid = t;
 
 	}
 };
 
-//helper methods
-void loadStream(string s) {
-
-}
-
-
 //main method
-int main(){
+void main(){
 
 	//create input file stream
 	ifstream ifile("files/dataset.txt");
@@ -41,7 +35,12 @@ int main(){
 	
 	//create a list of filenames in dataset for opening file streams
 	list<string> dataset;
-	string line;
+	//create arraylist of points
+	list<pointInTraj> points;
+	string line, filename;
+	double x, y;
+	int k, t;
+
 	while (!ifile.eof()) {
 		getline(ifile, line);
 		dataset.push_back(line);	
@@ -53,20 +52,36 @@ int main(){
 		cout << x << endl;
 	}*/
 
-	//open files from dataset one at a time and create trajectories and store them in a 
-	string filename;
+	//iterator for dataset
 	int j = dataset.size() - 1;
+	//open files from dataset one at a time and create points and store them in an array of points
 	for (int i = 0; i < j; i++) {
 		//select ith filename from dataset
 		filename = "files/" + dataset.front();
 		dataset.pop_front();
 
+		//create stream to new file name modeled on the input filename
 		ifstream ifile(filename);
+		//discard first line of datafile which holds 'column headers'
+		getline(ifile, line); 
+		//while file has next, create trajectories and pack them into an array
+		while (!ifile.eof()) {
+			//grab data for a point
+			getline(ifile, line);
+			ifile >> x >> y >> k >> t;
+			pointInTraj p = pointInTraj(x, y, k, t);
+			points.push_back(p);
 
-		//debugging the dataset
-		//cout << filename << end;
+		}
+
+		//debugging the dataset list
+		//cout << filename << endl;
+		//debugging the points list
+		/*for (pointInTraj p : points) {
+			cout << "x: " << p.xAxis << " y: " << p.yAxis << " k: " << p.kAxis << " tid: " << p.tid << endl;
+		}*/
+
 	}
 
-	return 0;
 }
 
