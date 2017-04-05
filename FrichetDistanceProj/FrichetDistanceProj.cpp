@@ -36,7 +36,8 @@ void main(){
 	//create a list of filenames in dataset for opening file streams
 	list<string> dataset;
 	//create arraylist of points
-	list<pointInTraj> points;
+	list<pointInTraj> traj;
+	list<list<pointInTraj>> trajList;
 	string line, filename;
 	double x, y;
 	int k, t;
@@ -47,14 +48,11 @@ void main(){
 	}
 	ifile.close();
 
-	//debugging the dataset
-	/*for (string x : dataset) {
-		cout << x << endl;
-	}*/
 
 	//iterator for dataset
 	int j = dataset.size() - 1;
-	//open files from dataset one at a time and create points and store them in an array of points
+	/*open files from dataset one at a time and create points and store them 
+	in an array of points*/
 	for (int i = 0; i < j; i++) {
 		//select ith filename from dataset
 		filename = "files/" + dataset.front();
@@ -67,21 +65,24 @@ void main(){
 		//while file has next, create trajectories and pack them into an array
 		while (!ifile.eof()) {
 			//grab data for a point
+			traj.clear();
 			getline(ifile, line);
 			ifile >> x >> y >> k >> t;
 			pointInTraj p = pointInTraj(x, y, k, t);
-			points.push_back(p);
+			traj.push_back(p);k++;
 
 		}
-
-		//debugging the dataset list
-		//cout << filename << endl;
-		//debugging the points list
-		/*for (pointInTraj p : points) {
-			cout << "x: " << p.xAxis << " y: " << p.yAxis << " k: " << p.kAxis << " tid: " << p.tid << endl;
-		}*/
-
+		trajList.push_back(traj);
+		cout << "just pushed the " << i << "st/th" << " trajectory into trajectory list" << endl;
 	}
+	//all trajectories are now in trajList<list<pointInTraj>>
+	//load trajectories from queries.txt
+
+	//compare each vector from queries.txt to all vectors in trajList
+
+		//for each trajectory that falls within the frechet distance bounds from queries.txt get written
+		//into an output file
+
 
 }
 
