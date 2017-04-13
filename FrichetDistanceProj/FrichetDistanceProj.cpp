@@ -20,6 +20,16 @@ struct pointInTraj {
 	}
 };
 
+struct query {
+	string queryTraj;
+	double leashLength;
+
+	query(string qt, double l){ //ctor
+		queryTraj = qt;
+		leashLength = l;
+	}
+};
+
 //main method
 void main(){
 
@@ -29,7 +39,7 @@ void main(){
 	//make sure file stream opens
 	if (!ifile)
 	{
-		cout << endl << "Error Opening File" << endl;
+		cout << endl << "Error Opening files/dataset.txt" << endl;
 		exit(0);
 	}
 	
@@ -69,14 +79,39 @@ void main(){
 			getline(ifile, line);
 			ifile >> x >> y >> k >> t;
 			pointInTraj p = pointInTraj(x, y, k, t);
-			traj.push_back(p);k++;
+			traj.push_back(p);
 
 		}
 		trajList.push_back(traj);
-		cout << "just pushed the " << i << "st/th" << " trajectory into trajectory list" << endl;
+		//debugStmt cout << "just pushed the " << i << "st/th" << " trajectory into trajectory list" << endl;
 	}
 	//all trajectories are now in trajList<list<pointInTraj>>
 	//load trajectories from queries.txt
+	//create input file stream
+	ifstream ifile2("queries.txt");
+	//check to see if stream opened
+	if (!ifile2)
+	{
+		cout << endl << "Error Opening queries.txt" << endl;
+		exit(0);
+	}
+	list<query> queries;
+	string queryname;
+	double maxLeash;
+
+	while (!ifile2.eof()) {
+		ifile2 >> queryname >> maxLeash;
+		query q = query(queryname, maxLeash);
+		queries.push_back(q);
+
+	}
+	cout << "size of queries object is: " << queries.size() << endl;
+	ifile2.close();
+
+	//check queries for accuracy
+	for (query q : queries) {
+		cout << "query file: " << q.queryTraj << " leashLength: " << q.leashLength << endl;
+	}
 
 	//compare each vector from queries.txt to all vectors in trajList
 
@@ -85,4 +120,14 @@ void main(){
 
 
 }
+
+//Frichet and supporting methods
+//min
+
+//max
+
+//euclidianDist
+
+//frechetDistance
+
 
