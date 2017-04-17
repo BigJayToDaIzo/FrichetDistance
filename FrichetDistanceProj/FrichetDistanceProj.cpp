@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include <math.h>
 using namespace std;
 
 //Structs
@@ -29,6 +30,31 @@ struct query {
 		leashLength = l;
 	}
 };
+//Frichet and supporting methods
+//min
+double min(double a, double b) {
+	if (a <= b)
+		return a;
+	else
+		return b;
+}
+//max
+double max(double a, double b) {
+	if (a >= b)
+		return a;
+	else
+		return b;
+}
+
+//euclidianDist
+double euclideanDistance(pointInTraj a, pointInTraj b) {
+	double distance = 0;
+	distance += sqrt(pow((a.xAxis - b.xAxis), 2) + pow((a.yAxis - b.yAxis), 2));
+
+	return distance;
+}
+
+//frechetDistance
 
 //main method
 void main(){
@@ -61,6 +87,7 @@ void main(){
 
 	//iterator for dataset
 	int j = dataset.size() - 1;
+	cout << "generating trajectories..." << endl;
 	/*open files from dataset one at a time and create points and store them 
 	in an array of points*/
 	for (int i = 0; i < j; i++) {
@@ -99,20 +126,23 @@ void main(){
 	string queryname;
 	double maxLeash;
 
+	cout << "scanning queries.txt" << endl;
 	while (!ifile2.eof()) {
 		ifile2 >> queryname >> maxLeash;
 		query q = query(queryname, maxLeash);
 		queries.push_back(q);
 
 	}
-	cout << "size of queries object is: " << queries.size() << endl;
 	ifile2.close();
 
 	//check queries for accuracy
 	for (query q : queries) {
 		cout << "query file: " << q.queryTraj << " leashLength: " << q.leashLength << endl;
 	}
-
+	//test euclidiean distance function
+	pointInTraj a = pointInTraj(1.0, 1.0, 1, 0);
+	pointInTraj b = pointInTraj(2.0, 2.0, 1, 0);
+	cout << "euclidean distance SHOULD be sqrt(2) ~ 1.41, but is actually: " << euclideanDistance(a, b) << endl;
 	//compare each vector from queries.txt to all vectors in trajList
 
 		//for each trajectory that falls within the frechet distance bounds from queries.txt get written
@@ -121,13 +151,6 @@ void main(){
 
 }
 
-//Frichet and supporting methods
-//min
 
-//max
-
-//euclidianDist
-
-//frechetDistance
 
 
