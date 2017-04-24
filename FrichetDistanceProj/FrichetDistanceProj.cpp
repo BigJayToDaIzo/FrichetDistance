@@ -100,7 +100,7 @@ void main(){
 	cout << "generating trajectories..." << endl;
 	/*open files from dataset one at a time and create points and store them 
 	in an array of points*/
-	for (int i = 0; i < j; i++) {
+	for (int i = 0; i <= j; i++) {
 		//select ith filename from dataset
 		filename = "files/" + dataset.front();
 		dataset.pop_front();
@@ -126,12 +126,8 @@ void main(){
 
 	}
 
-	for (list<pointInTraj> t : trajList) {
-		for (pointInTraj p : t) {
-			cout << "x: " << p.xAxis << " y: " << p.yAxis << " k: " << p.kAxis << " tid: " << p.tid << endl;
-		}
-	}
-	////all trajectories are now in trajList<list<pointInTraj>>
+	//debug trajList COMPLETE
+
 	////load trajectories from queries.txt
 	////create input file stream
 	//ifstream ifile2("queries.txt");
