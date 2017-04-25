@@ -174,22 +174,24 @@ void main(){
 
 		//while file has next, create trajectories and pack them into an array
 		getline(ifile3, line);
-		while (!ifile3.eof()) {
+		cout << "first line if file: " << line << endl;
+		while (getline(ifile3, line)) {
+			cout << "line: " << line << endl;
 			//grab data for a point
-			getline(ifile3, line);
 			ifile3 >> x >> y >> k >> t;
+			//cout << "x: " << x << " y: " << y << " k: " << k << " tid: " << t << endl;
 			pointInTraj p = pointInTraj(x, y, k, t);
+			//cout << "POT: x: " << p.xAxis << " y: " << p.yAxis << " k: " << p.kAxis << " tid: " << p.tid << endl;
+			getline(ifile3, line);
 			traj.push_back(p);
 
 		}
 		ifile3.close();
-		
-		//debug traj datastructure
-		for (pointInTraj p : traj) {
-			cout << "pointInTraj p x: " << p.xAxis << " y: " << p.yAxis << " k: " << p.kAxis << " tid: " << p.tid << endl;
-		}
-		queryList.push_back(traj);
 		traj.clear();
+		
+		
+		//queryList.push_back(traj);
+		
 		//debug queryList
 		
 	}
