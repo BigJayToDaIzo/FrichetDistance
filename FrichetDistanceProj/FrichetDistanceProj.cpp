@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include <vector>
 #include <math.h>
 using namespace std;
 
@@ -19,6 +20,10 @@ struct pointInTraj {
 		kAxis = k; tid = t;
 
 	}
+
+	void toString() {
+		cout << "xAxis: " << xAxis << " yAxis: " << yAxis << " kAxis: " << kAxis << " tid: " << tid << endl;
+	}
 };
 
 struct query {
@@ -30,6 +35,10 @@ struct query {
 		queryNum = qn;
 		queryTraj = qt;
 		leashLength = l;
+	}
+
+	void toString() {
+		cout << "queryNum: " << queryNum << " queryTraj: " << queryTraj << " leashLength: " << leashLength << endl;
 	}
 };
 //Frichet and supporting methods
@@ -56,13 +65,25 @@ double euclideanDistance(pointInTraj a, pointInTraj b) {
 	return distance;
 }
 
-//frechetDistance
 
 //main method
 void main(){
 
 	//create input file stream
 	ifstream ifile("files/dataset.txt");
+	//create a list of filenames in dataset for opening file streams
+	list<string> dataset, dataset2;  //confirmed populating correctly
+	list<query> queryList, queryList2; //confirmed populating correctly
+	list<pointInTraj> traj; //confirmed populating correctly
+	list<list<pointInTraj>> datasetTrajList; //confirmed populating correctly
+	list<list<pointInTraj>> queryTrajList; //confirmed populating correctly
+										   
+	string line, filename, queryname;
+	
+	double maxLeash;
+	double x, y;
+
+	int k, t, DIM;
 
 	//make sure file stream opens
 	if (!ifile)
@@ -70,30 +91,51 @@ void main(){
 		cout << endl << "Error Opening files/dataset.txt" << endl;
 		exit(0);
 	}
-	
-	//create a list of filenames in dataset for opening file streams
-	list<string> dataset;
-	//create arraylist of points
-	list<pointInTraj> traj;
-	list<list<pointInTraj>> trajList;
-	list<list<pointInTraj>> queryList;
-	string line, filename;
-	double x, y;
-	int k, t;
-
+	cout << "scanning dataset.txt" << endl;
 	while (!ifile.eof()) {
 		getline(ifile, line);
-		if(line != "")
-			dataset.push_back(line);	
+		if (line != "") {
+			dataset.push_back(line);
+			dataset2.push_back(line);
+		}
+			
 	}
 	ifile.close();
+	/*debug dataset
+	for (string l : dataset) {
+		cout << "string from dataset: " << l << endl;
+	}*/
 
-	//debug dataset COMPLETE
+	//load trajectories from queries.txt
+	//create input file stream
+	ifstream ifile2("queries.txt");
+	//check to see if stream opened
+	if (!ifile2)
+	{
+		cout << endl << "Error Opening queries.txt" << endl;
+		exit(0);
+	}
+
+	cout << "scanning queries.txt" << endl;
+	//added queryNum to struct for queries to use for output into result-XXXX.txt
+	int queryNum = 0;
+	while (!ifile2.eof()) {
+		ifile2 >> queryname >> maxLeash;
+		query q = query(queryNum, queryname, maxLeash);
+		queryList.push_back(q);
+		queryList2.push_back(q);
+		queryNum++;
+
+	}
+	ifile2.close();
+	/*debug queryList
+	for (query q : queryList) {
+		q.toString();
+	}*/
 
 	//iterator for dataset
 	int j = dataset.size() - 1;
-	//cout << "dataset.size() = " << dataset.size() << endl;
-	cout << "generating trajectories..." << endl;
+	cout << "generating dataset trajectories..." << endl;
 	/*open files from dataset one at a time and create points and store them 
 	in an array of points*/
 	for (int i = 0; i <= j; i++) {
@@ -105,63 +147,42 @@ void main(){
 		//cout << "generating dataset trajectory " << filename << endl;
 		ifstream ifile(filename);
 		//discard first line of datafile which holds 'column headers'
-		getline(ifile, line); 
 		//while file has next, create trajectories and pack them into an array
 		while (!ifile.eof()) {
 			//grab data for a point
 			getline(ifile, line);
-			ifile >> x >> y >> k >> t;
-			pointInTraj p = pointInTraj(x, y, k, t);
-			traj.push_back(p);
+			while (ifile >> x >> y >> k >> t) {
+				pointInTraj p = pointInTraj(x, y, k, t);
+				traj.push_back(p);
+			}
 
 		}
-		trajList.push_back(traj);
+		datasetTrajList.push_back(traj);
+		/*debug traj
+		for (pointInTraj p : traj) {
+			p.toString();
+		}*/
 		traj.clear();
-		//debug trajList
-		
-
+		ifile.close();
 	}
-
-	//debug trajList COMPLETE
-
-	//load trajectories from queries.txt
-	//create input file stream
-	ifstream ifile2("queries.txt");
-	//check to see if stream opened
-	if (!ifile2)
-	{
-		cout << endl << "Error Opening queries.txt" << endl;
-		exit(0);
-	}
-	list<query> queries;
-	string queryname;
-	double maxLeash;
-
-	cout << "scanning queries.txt" << endl;
-	//added queryNum to struct for queries to use for output into result-XXXX.txt
-	int queryNum = 0;
-	while (!ifile2.eof()) {
-		ifile2 >> queryname >> maxLeash;
-		query q = query(queryNum, queryname, maxLeash);
-		queries.push_back(q);
-		queryNum++;
-
-	}
-	ifile2.close();
-
-	//debug queries COMPLETE
+	/*debug datasetTrajList
+	for (list<pointInTraj> l : datasetTrajList) {
+		for (pointInTraj p : l) {
+			p.toString();
+		}
+	}*/
 
 	//for each query, pull in trajectories into another list
 	//iterator for queryset
-	j = queries.size() - 1;
+	j = queryList.size() - 1;
 	cout << "generating query trajectories..." << endl;
 	/*open files from dataset one at a time and create points and store them
 	in an array of points*/
 	for (int i = 0; i <= j; i++) {
 		//select ith filename from dataset
-		filename = queries.front().queryTraj;
+		filename = queryList.front().queryTraj;
 		cout << "filename: " << filename << endl;
-		queries.pop_front();
+		queryList.pop_front();
 
 		//create stream to new file name modeled on the input filename
 		ifstream ifile3(filename);
@@ -173,27 +194,37 @@ void main(){
 		}
 
 		//while file has next, create trajectories and pack them into an array
-		getline(ifile3, line);
-		cout << "first line if file: " << line << endl;
 		while (getline(ifile3, line)) {
-			cout << "line: " << line << endl;
 			//grab data for a point
-			ifile3 >> x >> y >> k >> t;
-			//cout << "x: " << x << " y: " << y << " k: " << k << " tid: " << t << endl;
-			pointInTraj p = pointInTraj(x, y, k, t);
-			//cout << "POT: x: " << p.xAxis << " y: " << p.yAxis << " k: " << p.kAxis << " tid: " << p.tid << endl;
-			getline(ifile3, line);
-			traj.push_back(p);
-
+			while (ifile3 >> x >> y >> k >> t) {
+				pointInTraj p = pointInTraj(x, y, k, t);
+				traj.push_back(p);
+			}
+			
 		}
-		ifile3.close();
+		queryTrajList.push_back(traj);
 		traj.clear();
-		
-		
-		//queryList.push_back(traj);
-		
-		//debug queryList
-		
+		ifile3.close();
+			
+	}
+	/*debug queryTrajList
+	for (list<pointInTraj> l : queryTrajList) {
+		for (pointInTraj p : l) {
+			p.toString();
+		}
+	}*/
+
+	//all data structured created and confirmed correctly populated
+	//for loop that compares each trajectory in queryTrajList to each trajectory in datasetTrajList
+	for (list<pointInTraj> qt : queryTrajList) {
+		for (list<pointInTraj> dt : datasetTrajList) {
+			discreteFrechetDistance(qt, dt);
+			
+		}
 	}
 
+
 }
+
+
+
