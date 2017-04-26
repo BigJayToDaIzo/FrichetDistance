@@ -10,6 +10,8 @@
 #include <math.h>
 using namespace std;
 
+
+
 //Structs
 struct pointInTraj {
 	double xAxis, yAxis;
@@ -65,6 +67,28 @@ double euclideanDistance(pointInTraj a, pointInTraj b) {
 	return distance;
 }
 
+//discreteFrechetDistance and supporting methods
+double computeDFD(int i, int j) {
+	return 1.0;
+}
+double discreteFrechetDistance(list<pointInTraj> P, list<pointInTraj> Q) {
+	//create and resize vector
+	vector<vector<double>> mem;
+	mem.resize(P.size());
+	for (int i = 0; i < P.size(); i++) {
+		mem[i].resize(Q.size());
+	}
+	//populate vector with -1.0
+	for (int i = 0; i < mem.size(); i++) {
+		for (int j = 0; j < mem[i].size(); j++) {
+			mem[i][j] = -1.0;
+		}
+	}
+	//computeDFD
+	return computeDFD(P.size() - 1, Q.size() - 1);
+
+}
+
 
 //main method
 void main(){
@@ -84,6 +108,7 @@ void main(){
 	double x, y;
 
 	int k, t, DIM;
+
 
 	//make sure file stream opens
 	if (!ifile)
@@ -218,7 +243,7 @@ void main(){
 	//for loop that compares each trajectory in queryTrajList to each trajectory in datasetTrajList
 	for (list<pointInTraj> qt : queryTrajList) {
 		for (list<pointInTraj> dt : datasetTrajList) {
-			discreteFrechetDistance(qt, dt);
+			double temp = discreteFrechetDistance(qt, dt);
 			
 		}
 	}
